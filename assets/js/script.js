@@ -9,68 +9,53 @@ let nextId = JSON.parse(localStorage.getItem("nextId"));
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
   if (nextId === null) {
-    nextId = [0];
+    nextId = -1;
   }
-  console.log(nextId);
-  nextId.push(nextId.length);
+
+  nextId++;
   localStorage.setItem("nextId", JSON.stringify(nextId));
-  return nextId.length - 1;
+  return nextId;
 }
 
 // Todo: create a function to create a task card
 function createTaskCard(task) {
   const taskCardEl = $("<div>");
-  const cardTitleElRow = $("<div>");
-  const cardTitleElCol = $("<div>");
+  const cardBodyEl = $("<div>");
   const cardTitleEl = $("<h3>");
-  const cardDescriptionElRow = $("<div>");
-  const cardDescriptionElCol = $("<div>");
   const cardDescriptionEl = $("<p>");
-  const cardDueDateElRow = $("<div>");
-  const cardDueDateElCol = $("<div>");
   const cardDueDateEl = $("<input>");
-  const cardDeleteButtonRow = $("<div>");
-  const cardDeleteButtonCol = $("<div>");
   const cardDeleteButton = $("<button>");
 
   cardTitleEl.text(task.title);
-  cardTitleEl.attr("class", "card-title bg-info-subtle text-info-emphasis");
+  cardTitleEl.attr("class", "card-title");
+  cardBodyEl.attr("class", "card-body");
   cardDescriptionEl.text(task.description);
-  cardDescriptionEl.attr(
-    "class",
-    "card-text bg-info-subtle text-info-emphasis"
-  );
+  cardDescriptionEl.attr("class", "card-text");
   cardDueDateEl.attr("id", `dueDate${task.id}`);
   cardDueDateEl.attr("class", "text-center");
   cardDueDateEl.val(`${dayjs(task.dueDate).format("MM/DD/YYYY")}`);
-  cardDeleteButton.attr("class", "btn btn-danger");
-  cardDeleteButton.attr("id", `deleteButton${task.id}`);
+  cardDeleteButton.attr("class", "btn btn-danger mt-2");
+  cardDeleteButton.attr("id", `${task.id}`);
   cardDeleteButton.text("Delete");
   taskCardEl.attr("id", `card${task.id}`);
-  taskCardEl.attr("class", "container text-center card");
-  cardTitleElRow.attr("class", "row");
-  cardTitleElCol.attr("class", "col");
-  cardDescriptionElRow.attr("class", "row");
-  cardDueDateElRow.attr("class", "row");
-  cardDeleteButtonRow.attr("class", "row");
-  cardDescriptionElCol.attr("class", "col");
-  cardDueDateElCol.attr("class", "col");
-  cardDeleteButtonCol.attr("class", "col");
 
-  console.log(dayjs(task.dueDate).format("MM/DD/YYYY"));
+  if (dayjs(task.dueDate).diff(dayjs(), "day") < 0) {
+    taskCardEl.attr("class", "text-center card text-bg-danger mb-3");
+  } else if (dayjs(task.dueDate).diff(dayjs(), "day") < 2) {
+    taskCardEl.attr("class", "text-center card text-bg-warning mb-3");
+  } else {
+    taskCardEl.attr("class", "text-center card text-bg-dark mb-3");
+  }
 
-  cardTitleElCol.append(cardTitleEl);
-  cardDescriptionElCol.append(cardDescriptionEl);
-  cardDueDateElCol.append(cardDueDateEl);
-  cardDeleteButtonCol.append(cardDeleteButton);
-  cardTitleElRow.append(cardTitleElCol);
-  cardDescriptionElRow.append(cardDescriptionElCol);
-  cardDueDateElRow.append(cardDueDateElCol);
-  cardDeleteButtonRow.append(cardDeleteButtonCol);
-  taskCardEl.append(cardTitleElRow);
-  taskCardEl.append(cardDescriptionElRow);
-  taskCardEl.append(cardDueDateElRow);
-  taskCardEl.append(cardDeleteButtonRow);
+  console.log(dayjs().format("MM/DD/YYYY"));
+
+  console.log(dayjs(task.dueDate).diff(dayjs(), "day"));
+
+  cardBodyEl.append(cardTitleEl);
+  cardBodyEl.append(cardDescriptionEl);
+  cardBodyEl.append(cardDueDateEl);
+  cardBodyEl.append(cardDeleteButton);
+  taskCardEl.append(cardBodyEl);
   task.location.append(taskCardEl);
 
   $(function () {
@@ -79,6 +64,14 @@ function createTaskCard(task) {
       changeYear: true,
     });
   });
+
+  if (taskList === null) {
+    taskList = [];
+  }
+  taskList.concat(task);
+  console.log(taskList);
+
+  cardDeleteButton.on("click", handleDeleteTask);
 }
 
 // Todo: create a function to render the task list and make cards draggable
@@ -105,7 +98,7 @@ function handleAddTask(event) {
   }
 
   taskList.push(task);
-  console.log(taskList);
+
   createTaskCard(task);
 
   taskTitleEl.val("");
@@ -114,7 +107,13 @@ function handleAddTask(event) {
 }
 
 // Todo: create a function to handle deleting a task
-function handleDeleteTask(event) {}
+function handleDeleteTask(event) {
+  console.log(event);
+  const index = Number(event.target.attributes[1].nodeValue);
+  taskList[index]["delete"] = true;
+  console.log(taskList);
+  event.target.offsetParent.textContent = "";
+}
 
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {}
@@ -133,4 +132,16 @@ $(function () {
   $("#todo-card, #in-progress-cards, #done-cards").disableSelection();
 });
 
-//bg-info-subtle
+//event listener for change of due date to update color
+// const inventory = [
+//   { name: "apples", quantity: 2 },
+//   { name: "bananas", quantity: 0 },
+//   { name: "cherries", quantity: 5 },
+// ];
+
+// function isCherries(fruit) {
+//   return fruit.name === "cherries";
+// }
+
+// console.log(inventory.find(isCherries));
+// { name: 'cherries', quantity: 5 }
