@@ -38,6 +38,7 @@ function createTaskCard(task) {
   cardDeleteButton.attr("id", `${task.id}`);
   cardDeleteButton.text("Delete");
   taskCardEl.attr("data-index", `${task.id}`);
+  taskCardEl.attr("id", `taskCard${task.id}`);
 
   if (dayjs(task.dueDate).diff(dayjs(), "day") < 0) {
     taskCardEl.attr("class", "text-center card text-bg-danger mb-3");
@@ -57,9 +58,9 @@ function createTaskCard(task) {
   cardBodyEl.append(cardDeleteButton);
   taskCardEl.append(cardBodyEl);
 
-  if (task.location === "todo") {
+  if (task.location === "to-do") {
     todo.append(taskCardEl);
-  } else if (task.location === "inProgress") {
+  } else if (task.location === "in-progress") {
     inProgress.append(taskCardEl);
   } else {
     done.append(taskCardEl);
@@ -79,11 +80,18 @@ function createTaskCard(task) {
   console.log(taskList);
 
   cardDeleteButton.on("click", handleDeleteTask);
-  taskCardEl.on("mouseup", handleDrop);
+  taskCardEl.on("mousemove", handleDrop);
 }
 
 // Todo: create a function to render the task list and make cards draggable
-function renderTaskList() {}
+function renderTaskList(taskList) {
+  for (i = 0; i < taskList.length; i++) {
+    if (taskList[i].delete === false) {
+      task = taskList[i];
+      createTaskCard(task);
+    }
+  }
+}
 
 // Todo: create a function to handle adding a new task
 function handleAddTask(event) {
@@ -97,7 +105,7 @@ function handleAddTask(event) {
     dueDate: taskDueDateEl.val(),
     description: taskDescriptionEl.val(),
     id: taskId,
-    location: "todo",
+    location: "to-do",
     delete: false,
   };
 
@@ -130,10 +138,11 @@ function handleDeleteTask(event) {
 function handleDrop(event, ui) {
   event.preventDefault();
   console.log(event);
-  const parent = event.currentTarget.offsetParent.attributes[0].nodeValue;
+  const parent = event.currentTarget.offsetParent.id;
   const index = Number(event.currentTarget.dataset.index);
   console.log(index);
-  console.log(parent);
+  taskList[index]["location"] = parent;
+  localStorage.setItem("tasks", JSON.stringify(taskList));
 }
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
@@ -149,6 +158,8 @@ $(function () {
 
   $("#todo-card, #in-progress-cards, #done-cards").disableSelection();
 });
+
+renderTaskList(taskList);
 
 //event listener for change of due date to update color
 // const inventory = [
