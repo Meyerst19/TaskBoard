@@ -1,3 +1,5 @@
+console.log("is this working?");
+
 const addTaskButton = $("#addTaskButton");
 const todo = $("#todo-cards");
 const inProgress = $("#in-progress-cards");
