@@ -103,10 +103,12 @@ function createTaskCard(task) {
 
 // Todo: create a function to render the task list and make cards draggable
 function renderTaskList(taskList) {
-  for (i = 0; i < taskList.length; i++) {
-    if (taskList[i].delete === false) {
-      task = taskList[i];
-      createTaskCard(task);
+  if (taskList !== null) {
+    for (i = 0; i < taskList.length; i++) {
+      if (taskList[i].delete === false) {
+        task = taskList[i];
+        createTaskCard(task);
+      }
     }
   }
 }
