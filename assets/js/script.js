@@ -40,17 +40,32 @@ function createTaskCard(task) {
   taskCardEl.attr("data-index", `${task.id}`);
   taskCardEl.attr("id", `taskCard${task.id}`);
 
-  if (dayjs(task.dueDate).diff(dayjs(), "day") < 0) {
-    taskCardEl.attr("class", "text-center card text-bg-danger mb-3");
-  } else if (dayjs(task.dueDate).diff(dayjs(), "day") < 2) {
-    taskCardEl.attr("class", "text-center card text-bg-warning mb-3");
-  } else {
-    taskCardEl.attr("class", "text-center card text-bg-dark mb-3");
+  function colorCodeCard(task) {
+    if (task.location === "done") {
+      taskCardEl.attr("class", "text-center card text-bg-success mb-3");
+    } else if (dayjs(task.dueDate).diff(dayjs(), "day") < 0) {
+      taskCardEl.attr("class", "text-center card text-bg-danger mb-3");
+    } else if (dayjs(task.dueDate).diff(dayjs(), "day") < 2) {
+      taskCardEl.attr("class", "text-center card text-bg-warning mb-3");
+    } else {
+      taskCardEl.attr("class", "text-center card text-bg-dark mb-3");
+    }
   }
 
-  console.log(dayjs().format("MM/DD/YYYY"));
+  colorCodeCard(task);
 
-  console.log(dayjs(task.dueDate).diff(dayjs(), "day"));
+  function handleChangeDueDate(event) {
+    console.log(event);
+    index = event.currentTarget.id.slice(7);
+    console.log(index);
+    taskList[index]["dueDate"] = cardDueDateEl.val();
+    localStorage.setItem("tasks", JSON.stringify(taskList));
+    colorCodeCard(taskList[index]);
+  }
+
+  // console.log(dayjs().format("MM/DD/YYYY"));
+
+  // console.log(dayjs(task.dueDate).diff(dayjs(), "day"));
 
   cardBodyEl.append(cardTitleEl);
   cardBodyEl.append(cardDescriptionEl);
@@ -77,10 +92,11 @@ function createTaskCard(task) {
     taskList = [];
   }
   taskList.concat(task);
-  console.log(taskList);
+  // console.log(taskList);
 
   cardDeleteButton.on("click", handleDeleteTask);
   taskCardEl.on("mousemove", handleDrop);
+  cardDueDateEl.on("change", handleChangeDueDate);
 }
 
 // Todo: create a function to render the task list and make cards draggable
@@ -137,10 +153,10 @@ function handleDeleteTask(event) {
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
   event.preventDefault();
-  console.log(event);
+  // console.log(event);
   const parent = event.currentTarget.offsetParent.id;
   const index = Number(event.currentTarget.dataset.index);
-  console.log(index);
+  // console.log(index);
   taskList[index]["location"] = parent;
   localStorage.setItem("tasks", JSON.stringify(taskList));
 }
